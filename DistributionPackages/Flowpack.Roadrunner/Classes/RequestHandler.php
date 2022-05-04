@@ -2,7 +2,10 @@
 namespace Flowpack\Roadrunner;
 
 use Neos\Flow\Core\Bootstrap;
+use Neos\Flow\ObjectManagement\Configuration\Configuration as ObjectConfiguration;
+use Neos\Flow\ObjectManagement\ImmutableInstance;
 use Neos\Flow\ObjectManagement\ObjectManager;
+use Neos\Flow\ObjectManagement\ResettableInstance;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Neos\Flow\Http\Middleware;
@@ -66,8 +69,16 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
     {
         // Forget instances of new object instances
         foreach ($this->objectManager->getAllObjectConfigurations() as $objectName => $objectConfiguration) {
-            if (!isset($this->initialObjectNames[$objectName])) {
-                $this->objectManager->forgetInstance($objectName);
+            if (!isset($this->initialObjectNames[$objectName]) && isset($objectConfiguration['i'])) {
+                if ($objectConfiguration['i'] instanceof ImmutableInstance) {
+                    // file_put_contents('php://stderr', "Leaving object instance $objectName (is immutable)\n");
+                } elseif ($objectConfiguration['i'] instanceof ResettableInstance) {
+                    // file_put_contents('php://stderr', "Resetting object instance $objectName (is resettable)\n");
+                    $objectConfiguration['i']->resetInstance();
+                } else {
+                    // file_put_contents('php://stderr', "Forgetting object instance $objectName\n");
+                    $this->objectManager->forgetInstance($objectName);
+                }
             }
         }
     }

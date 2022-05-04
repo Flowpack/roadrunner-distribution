@@ -3,6 +3,7 @@
 namespace Flowpack\Roadrunner;
 
 use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Error\Debugger;
 use Neos\Flow\Error\WithHttpStatusInterface;
 use Neos\Flow\ObjectManagement\ObjectManagerInterface;
 use Neos\Flow\Property\PropertyMapper;
@@ -16,6 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * An exception handler for Roadrunner
+ * @Flow\Proxy(false)
  */
 class ExceptionHandler
 {
@@ -30,8 +32,12 @@ class ExceptionHandler
 
         file_put_contents('php://stderr', get_class($exception));
 
-        $body = "Got exception: " . $exception->getMessage();
+        $message = htmlspecialchars($exception->getMessage());
 
-        return new Response($statusCode, [], $body);
+        $backtraceCode = Debugger::getBacktraceCode($exception->getTrace());
+
+        $body = "<!DOCTYPE html><html><body><h1>Got exception: $message</h1>$backtraceCode</body></html>";
+
+        return new Response($statusCode, ["Content-Type" => "text/html"], $body);
     }
 }
