@@ -19,7 +19,7 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
 
     private ObjectManager $objectManager;
 
-    private array $initialObjectConfiguration;
+    private array $initialObjectNames = [];
 
     /**
      * @param Bootstrap $bootstrap
@@ -32,8 +32,12 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
         $objectManager = $this->bootstrap->getObjectManager();
         $this->objectManager = $objectManager;
 
-        // Store the initial object configuration after bootstrap
-        $this->initialObjectConfiguration = $this->objectManager->getAllObjectConfigurations();
+        // Store the names of objects having an initial instance
+        foreach ($this->objectManager->getAllObjectConfigurations() as $objectName => $objectConfiguration) {
+            if (isset($objectConfiguration['i'])) {
+                $this->initialObjectNames[$objectName] = true;
+            }
+        }
     }
 
     public function processRequest(ServerRequestInterface $request): ResponseInterface
@@ -47,19 +51,25 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
         });
         $httpResponse = $middlewaresChain->handle($this->httpRequest);
 
-        // TODO Check if we need shutdown behaviour from Bootstrap in workers!
+
+        // TODO Check if we need shutdown behavior from Bootstrap in workers!
         // $this->bootstrap->shutdown(Bootstrap::RUNLEVEL_RUNTIME);
 
+        // We need to shutdown objects before responding!
         // For now only shutdown objects
         $this->objectManager->shutdown();
 
-        // Reset objects to initial configuration - this is a pretty rough approach
-        //
-        // One idea to have this more "soft" is to opt-in to a soft-reset by singletons and either reset these or unset singleton instances.
-        // What to do with transitive dependencies (i.e. a singleton can be resetted but depends on a non-resettable singleton) is to be figured out. Maybe we can statically detect this.
-        $this->objectManager->setObjects($this->initialObjectConfiguration);
-
         return $httpResponse;
+    }
+
+    public function reset(): void
+    {
+        // Forget instances of new object instances
+        foreach ($this->objectManager->getAllObjectConfigurations() as $objectName => $objectConfiguration) {
+            if (!isset($this->initialObjectNames[$objectName])) {
+                $this->objectManager->forgetInstance($objectName);
+            }
+        }
     }
 
     /**

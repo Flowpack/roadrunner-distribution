@@ -43,19 +43,23 @@ $exceptionHandler = new \Flowpack\Roadrunner\ExceptionHandler();
 
 while ($req = $worker->waitRequest()) {
     try {
-        file_put_contents('php://stderr', 'Processing request from worker: ' . posix_getpid());
+        // file_put_contents('php://stderr', 'Processing request from worker: ' . posix_getpid());
 
         $resp = $requestHandler->processRequest($req);
 
         $worker->respond($resp);
 
-        file_put_contents('php://stderr', 'Finished request from worker: ' . posix_getpid());
+        $requestHandler->reset();
+
+        // file_put_contents('php://stderr', 'Finished request from worker: ' . posix_getpid());
     } catch (\Throwable $e) {
-        file_put_contents('php://stderr', 'Catched error from worker: ' . posix_getpid());
+        // file_put_contents('php://stderr', 'Catched error from worker: ' . posix_getpid());
 
         // NOTE: This will cause the worker to be killed!
         // $worker->getWorker()->error((string)$e);
 
         $worker->respond($exceptionHandler->handleException($e));
+
+        $requestHandler->reset();
     }
 }
