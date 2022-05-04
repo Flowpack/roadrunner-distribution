@@ -1,0 +1,34 @@
+Neos:
+  Flow:
+
+    # Log to STDOUT to have correct 12 factor app behavior for running in a container
+    log:
+      psr3:
+        'Neos\Flow\Log\PsrLoggerFactory':
+          systemLogger:
+            default:
+              class: Networkteam\ContainerReady\Log\Backend\ConsoleBackend
+              options:
+                streamName: stderr
+                prefix: '[System]  '
+                severityThreshold: '%LOG_DEBUG%'
+          securityLogger:
+            default:
+              class: Networkteam\ContainerReady\Log\Backend\ConsoleBackend
+              options:
+                streamName: stderr
+                prefix: '[Security]'
+                # Info level has too much verbosity
+                severityThreshold: '%LOG_NOTICE%'
+          sqlLogger:
+            default:
+              class: Networkteam\ContainerReady\Log\Backend\ConsoleBackend
+              options:
+                streamName: stderr
+                prefix: '[SQL]     '
+          i18nLogger:
+            default:
+              class: Networkteam\ContainerReady\Log\Backend\ConsoleBackend
+              options:
+                streamName: stderr
+                prefix: '[I18N]    '
