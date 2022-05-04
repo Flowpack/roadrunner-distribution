@@ -1,0 +1,7 @@
+Neos:
+  Flow:
+    http:
+      middlewares:
+        # Override parseBody middleware to fix an issue with wrong types being used in withParsedBody
+        'parseBody':
+          middleware: 'Flowpack\Roadrunner\RequestBodyParsingMiddleware'
