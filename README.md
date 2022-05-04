@@ -1,6 +1,6 @@
 # Roadrunner distribution
 
-This is an experimental distribution to run Neos / Flow via Roadrunner.
+This is an **experimental** distribution to run Neos / Flow via Roadrunner.
 
 ## Getting up and running
 
@@ -30,6 +30,7 @@ Go to http://localhost:8080/ - Magic!
 
 ## Loose ends
 
+* Provide configs for Development and Production context
 * Better exception handling
 * Optimized reset of object manager instances
 * Keep track of memory usage
