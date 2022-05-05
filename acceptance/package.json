@@ -1,0 +1,12 @@
+{
+    "name": "acceptance",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "playwright-install": "playwright install",
+        "test": "playwright test"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.21.1"
+    }
+}

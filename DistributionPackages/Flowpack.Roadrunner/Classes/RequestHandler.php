@@ -75,8 +75,12 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
                 } elseif ($objectConfiguration['i'] instanceof ResettableInstance) {
                     // file_put_contents('php://stderr', "Resetting object instance $objectName (is resettable)\n");
                     $objectConfiguration['i']->resetInstance();
+                } elseif ($objectName === 'Doctrine\ORM\EntityManagerInterface') {
+                    // NOOP
+                    // FIXME Make this configurable by adding immutable option to Objects.yaml
                 } else {
                     // file_put_contents('php://stderr', "Forgetting object instance $objectName\n");
+                    echo "[RequestHandler] forgetInstance $objectName\n";
                     $this->objectManager->forgetInstance($objectName);
                 }
             }

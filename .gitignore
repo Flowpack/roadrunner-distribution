@@ -19,3 +19,4 @@
 Build/Resources/Java/selenium-server-standalone*
 /"
 /rr
+node_modules
