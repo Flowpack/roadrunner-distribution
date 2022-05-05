@@ -36,6 +36,7 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
         $this->objectManager = $objectManager;
 
         // Store the names of objects having an initial instance
+        // TODO Do we need this?
         foreach ($this->objectManager->getAllObjectConfigurations() as $objectName => $objectConfiguration) {
             if (isset($objectConfiguration['i'])) {
                 $this->initialObjectNames[$objectName] = true;
@@ -79,6 +80,7 @@ class RequestHandler implements \Neos\Flow\Http\HttpRequestHandlerInterface
                     // NOOP
                     // FIXME Make this configurable by adding immutable option to Objects.yaml
                 } else {
+                    // TODO Throw if object has scope singleton
                     // file_put_contents('php://stderr', "Forgetting object instance $objectName\n");
                     echo "[RequestHandler] forgetInstance $objectName\n";
                     $this->objectManager->forgetInstance($objectName);
